@@ -1,0 +1,91 @@
+<%- include('partials/header') %>
+<h1>Dashboard</h1>
+<p class="sub">Welcome, <strong><%= user.display_name %></strong> (<%= user.role %>).</p>
+
+<% if (user.role === 'creator') { %>
+  <div class="grid2">
+    <div class="card">
+      <h3>Your listings</h3>
+      <p><a class="btn small" href="/creator/listings/new">Create listing</a></p>
+      <% if (!listings.length) { %><p class="desc">No listings yet.</p><% } %>
+      <% listings.forEach(l => { %>
+        <div class="mini">
+          <strong><%= l.title %></strong> <span class="tag">• <%= l.category %></span>
+          <div class="actions">
+            <a class="btn small ghost" href="/listing/<%= l.id %>">View</a>
+            <form class="inline" method="POST" action="/creator/listings/toggle">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>"/>
+              <input type="hidden" name="id" value="<%= l.id %>"/>
+              <button class="btn small ghost" type="submit"><%= l.active ? 'Deactivate' : 'Activate' %></button>
+            </form>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <div class="card">
+      <h3>Parent/guardian consent</h3>
+      <% if (parentLink) { %>
+        <p class="desc">Linked parent: <strong><%= parentLink.parent_email %></strong></p>
+        <p class="desc">Consent status: <strong><%= parentLink.consented ? 'Consented' : 'Not yet' %></strong></p>
+        <% if (!parentLink.consented) { %>
+          <p class="desc">Ask your parent to log in and go to their dashboard to consent.</p>
+        <% } %>
+      <% } else { %>
+        <form class="form" method="POST" action="/creator/link-parent">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>"/>
+          <label>Parent/guardian email
+            <input class="input" type="email" name="parent_email" required/>
+          </label>
+          <button class="btn small" type="submit">Link parent</button>
+        </form>
+        <p class="fineprint">This is required for under‑18 creators before payment can happen.</p>
+      <% } %>
+    </div>
+  </div>
+<% } %>
+
+<% if (user.role === 'parent') { %>
+  <div class="card">
+    <h3>Creators linked to you</h3>
+    <% if (!linkedCreators.length) { %>
+      <p class="desc">No creators linked yet.</p>
+    <% } %>
+    <% linkedCreators.forEach(c => { %>
+      <div class="mini">
+        <strong><%= c.creator_name %></strong> <span class="tag">• consent: <%= c.consented ? 'yes' : 'no' %></span>
+        <% if (!c.consented) { %>
+          <form class="inline" method="POST" action="/parent/consent">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>"/>
+            <input type="hidden" name="creator_id" value="<%= c.creator_id %>"/>
+            <button class="btn small" type="submit">Give consent</button>
+          </form>
+        <% } %>
+      </div>
+    <% }) %>
+    <p class="fineprint">Consent means you approve your child doing paid commissions through Skillstarter.</p>
+  </div>
+<% } %>
+
+<div class="card">
+  <h3>Your orders</h3>
+  <% if (!orders.length) { %><p class="desc">No orders yet.</p><% } %>
+  <% orders.forEach(o => { %>
+    <div class="mini">
+      <strong>Order <%= o.id.slice(0,8) %></strong>
+      <span class="tag">• status: <%= o.status %></span>
+      <div class="actions">
+        <a class="btn small ghost" href="/orders/<%= o.id %>">Open</a>
+      </div>
+    </div>
+  <% }) %>
+</div>
+
+<% if (user.role === 'admin') { %>
+  <div class="card">
+    <h3>Admin</h3>
+    <a class="btn small" href="/admin/reports">View reports</a>
+  </div>
+<% } %>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,21 @@
+<%- include('partials/header') %>
+<h1>Reports</h1>
+<div class="card">
+  <% if (!reports.length) { %>
+    <p class="desc">No reports.</p>
+  <% } %>
+  <% reports.forEach(r => { %>
+    <div class="mini">
+      <strong><%= r.id.slice(0,8) %></strong>
+      <span class="tag">• <%= new Date(r.created_at).toLocaleString() %></span>
+      <p class="desc"><%= r.reason %></p>
+      <form class="inline" method="POST" action="/admin/reports/resolve">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>"/>
+        <input type="hidden" name="id" value="<%= r.id %>"/>
+        <% if (!r.resolved) { %><button class="btn small" type="submit">Mark resolved</button><% } else { %><span class="tag">resolved</span><% } %>
+      </form>
+    </div>
+  <% }) %>
+</div>
+
+<%- include('partials/footer') %>

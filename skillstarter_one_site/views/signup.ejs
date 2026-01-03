@@ -1,0 +1,29 @@
+<%- include('partials/header') %>
+<h1>Sign up</h1>
+<form class="card form" method="POST" action="/signup">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>"/>
+  <div class="grid2">
+    <label>Display name
+      <input class="input" name="display_name" required/>
+    </label>
+    <label>Role
+      <select class="input" name="role" required>
+        <option value="client" <%= defaultRole==='client'?'selected':'' %>>Client (buyer)</option>
+        <option value="creator" <%= defaultRole==='creator'?'selected':'' %>>Creator (under/over 18)</option>
+        <option value="parent" <%= defaultRole==='parent'?'selected':'' %>>Parent/Guardian</option>
+      </select>
+    </label>
+  </div>
+  <div class="grid2">
+    <label>Email
+      <input class="input" type="email" name="email" required/>
+    </label>
+    <label>Password
+      <input class="input" type="password" name="password" minlength="8" required/>
+    </label>
+  </div>
+  <button class="btn" type="submit">Create account</button>
+  <p class="fineprint">For creators under 18: you’ll link a parent/guardian in your dashboard after signing up.</p>
+</form>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,36 @@
+<%- include('partials/header') %>
+<h1>Create listing</h1>
+<form class="card form" method="POST" action="/creator/listings/new">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>"/>
+  <div class="grid2">
+    <label>Category
+      <select class="input" name="category" required>
+        <option>Roblox Scripting</option>
+        <option>Roblox Building</option>
+        <option>Digital Art</option>
+        <option>Design</option>
+        <option>Editing</option>
+      </select>
+    </label>
+    <label>Starting price (GBP)
+      <input class="input" name="starting_price_gbp" placeholder="e.g. 15"/>
+    </label>
+  </div>
+  <label>Title
+    <input class="input" name="title" required placeholder="e.g. Roblox UI + simple systems"/>
+  </label>
+  <label>Description
+    <textarea class="input" name="description" rows="6" required></textarea>
+  </label>
+  <div class="grid2">
+    <label>Tags (comma separated)
+      <input class="input" name="tags" placeholder="Lua, UI, Obby"/>
+    </label>
+    <label>Portfolio URL (optional)
+      <input class="input" name="portfolio_url" placeholder="https://..."/>
+    </label>
+  </div>
+  <button class="btn" type="submit">Create</button>
+</form>
+
+<%- include('partials/footer') %>

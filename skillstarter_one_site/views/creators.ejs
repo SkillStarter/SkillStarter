@@ -1,0 +1,44 @@
+<%- include('partials/header') %>
+<section class="pagehead">
+  <h1>Creators</h1>
+  <p class="sub">Browse active listings. To request, open a listing.</p>
+  <form class="filters" method="GET" action="/creators">
+    <input class="input" name="q" placeholder="Search (Roblox, art, thumbnails)" value="<%= q %>"/>
+    <select class="input" name="cat">
+      <option value="">All categories</option>
+      <% ['Roblox Scripting','Roblox Building','Digital Art','Design','Editing'].forEach(c => { %>
+        <option value="<%= c %>" <%= cat===c?'selected':'' %>><%= c %></option>
+      <% }) %>
+    </select>
+    <button class="btn small" type="submit">Filter</button>
+  </form>
+</section>
+
+<section class="grid3">
+  <% listings.forEach(l => { %>
+    <article class="card creator">
+      <div class="creator-top">
+        <div>
+          <h3><%= l.title %></h3>
+          <p class="tag"><%= l.category %> • by <%= l.creator_name %></p>
+        </div>
+        <p class="price"><%= l.starting_price_gbp ? `From £${l.starting_price_gbp}` : 'Ask' %></p>
+      </div>
+      <p class="desc"><%= l.description %></p>
+      <div class="pillrow">
+        <% (l.tags || []).slice(0,4).forEach(t => { %><span class="pill"><%= t %></span><% }) %>
+      </div>
+      <div class="actions">
+        <a class="btn small" href="/listing/<%= l.id %>">Open</a>
+        <% if (l.portfolio_url) { %>
+          <a class="btn small ghost" target="_blank" rel="noopener" href="<%= l.portfolio_url %>">Portfolio</a>
+        <% } %>
+      </div>
+    </article>
+  <% }) %>
+  <% if (!listings.length) { %>
+    <div class="card"><h3>No matches</h3><p>Try another search.</p></div>
+  <% } %>
+</section>
+
+<%- include('partials/footer') %>

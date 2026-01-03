@@ -1,0 +1,107 @@
+<%- include('partials/header') %>
+<section class="pagehead">
+  <h1>Order <%= order.id.slice(0,8) %></h1>
+  <p class="sub">Status: <strong><%= order.status %></strong></p>
+</section>
+
+<div class="grid2">
+  <div class="card">
+    <h3>Brief</h3>
+    <p class="desc"><%= order.brief %></p>
+    <p class="tag">Budget: <%= order.budget_gbp ? `£${order.budget_gbp}` : '—' %> • Deadline: <%= order.deadline_text || '—' %></p>
+
+    <% if (user.role === 'creator' && order.status === 'requested') { %>
+      <form class="form" method="POST" action="/orders/<%= order.id %>/accept">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>"/>
+        <label>Set agreed price (GBP)
+          <input class="input" name="agreed_price_gbp" required placeholder="e.g. 25"/>
+        </label>
+        <button class="btn" type="submit">Accept & set price</button>
+      </form>
+    <% } %>
+
+    <% if (user.role === 'client' && order.status === 'awaiting_parent_consent') { %>
+      <p class="desc">Waiting for parent/guardian consent before payment can start.</p>
+    <% } %>
+
+    <% if (user.role === 'client' && (order.status === 'awaiting_payment' || (order.status === 'accepted' && order.canPay)) ) { %>
+      <form method="POST" action="/orders/<%= order.id %>/pay">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>"/>
+        <button class="btn" type="submit">Pay securely (Stripe)</button>
+      </form>
+      <p class="fineprint">Total includes platform fee (<%= platformFeePercent %>%).</p>
+    <% } %>
+
+    <% if (order.paid && (order.status === 'in_progress' || order.status === 'delivered')) { %>
+      <p class="tag">Payment received ✅</p>
+    <% } %>
+
+    <% if (user.role === 'creator' && order.status === 'in_progress') { %>
+      <form class="form" method="POST" action="/orders/<%= order.id %>/deliver">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>"/>
+        <label>Delivery link (Google Drive, Roblox place, etc.)
+          <input class="input" name="delivery_link" placeholder="https://..." required/>
+        </label>
+        <label>Notes (optional)
+          <textarea class="input" name="notes" rows="3"></textarea>
+        </label>
+        <button class="btn" type="submit">Submit deliverable</button>
+      </form>
+    <% } %>
+
+    <% if (user.role === 'client' && order.status === 'delivered') { %>
+      <form class="form" method="POST" action="/orders/<%= order.id %>/complete">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>"/>
+        <button class="btn" type="submit">Mark complete</button>
+      </form>
+      <form class="form" method="POST" action="/orders/<%= order.id %>/review">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>"/>
+        <label>Rating (1-5)
+          <input class="input" type="number" name="rating" min="1" max="5" required/>
+        </label>
+        <label>Comment (optional)
+          <textarea class="input" name="comment" rows="3"></textarea>
+        </label>
+        <button class="btn ghost" type="submit">Leave review</button>
+      </form>
+    <% } %>
+
+    <form class="form" method="POST" action="/reports">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>"/>
+      <input type="hidden" name="order_id" value="<%= order.id %>"/>
+      <input type="hidden" name="reported_user_id" value="<%= otherUserId %>"/>
+      <label>Report (if anything unsafe)
+        <textarea class="input" name="reason" rows="2" placeholder="Explain what happened" required></textarea>
+      </label>
+      <button class="btn small ghost" type="submit">Report</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Chat (order only)</h3>
+    <div class="chat">
+      <% messages.forEach(m => { %>
+        <div class="msg <%= m.sender_id === user.id ? 'me' : 'them' %>">
+          <div class="meta"><%= m.sender_name %> • <%= new Date(m.created_at).toLocaleString() %></div>
+          <div class="body"><%= m.body %></div>
+        </div>
+      <% }) %>
+    </div>
+    <form class="form" method="POST" action="/orders/<%= order.id %>/message">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>"/>
+      <label>Message
+        <textarea class="input" name="body" rows="3" required placeholder="No phone numbers/emails/addresses."></textarea>
+      </label>
+      <button class="btn small" type="submit">Send</button>
+    </form>
+
+    <% if (deliverable) { %>
+      <hr class="hr"/>
+      <h3>Latest deliverable</h3>
+      <p class="desc"><a target="_blank" rel="noopener" href="<%= deliverable.delivery_link %>"><%= deliverable.delivery_link %></a></p>
+      <% if (deliverable.notes) { %><p class="desc"><%= deliverable.notes %></p><% } %>
+    <% } %>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

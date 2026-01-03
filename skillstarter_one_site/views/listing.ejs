@@ -1,0 +1,50 @@
+<%- include('partials/header') %>
+<section class="pagehead">
+  <h1><%= listing.title %></h1>
+  <p class="sub"><%= listing.category %> • by <strong><%= listing.creator_name %></strong></p>
+</section>
+
+<div class="grid2">
+  <div class="card">
+    <h3>About this service</h3>
+    <p class="desc"><%= listing.description %></p>
+    <p class="tag">Starting price: <strong><%= listing.starting_price_gbp ? `£${listing.starting_price_gbp}` : 'Ask' %></strong></p>
+    <% if (listing.portfolio_url) { %>
+      <p><a class="btn small ghost" target="_blank" rel="noopener" href="<%= listing.portfolio_url %>">View portfolio</a></p>
+    <% } %>
+    <div class="pillrow">
+      <% (listing.tags || []).forEach(t => { %><span class="pill"><%= t %></span><% }) %>
+    </div>
+  </div>
+
+  <form class="card form" method="POST" action="/orders/create">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>"/>
+    <input type="hidden" name="listing_id" value="<%= listing.id %>"/>
+    <input type="hidden" name="creator_id" value="<%= listing.creator_id %>"/>
+    <h3>Request this commission</h3>
+    <% if (!user) { %>
+      <p class="desc">You’ll need to <a href="/login">log in</a> as a client to request.</p>
+    <% } else if (user.role !== 'client') { %>
+      <p class="desc">Only client accounts can create requests.</p>
+    <% } else { %>
+      <label>Brief
+        <textarea class="input" name="brief" rows="6" required placeholder="Describe what you want. Keep it appropriate and safe."></textarea>
+      </label>
+      <div class="grid2">
+        <label>Budget (GBP)
+          <input class="input" name="budget_gbp" placeholder="e.g. 20"/>
+        </label>
+        <label>Deadline (optional)
+          <input class="input" name="deadline_text" placeholder="e.g. 3 days"/>
+        </label>
+      </div>
+      <label class="check">
+        <input type="checkbox" required/> I agree to the rules and safety policy.
+      </label>
+      <button class="btn" type="submit">Send request</button>
+      <p class="fineprint">If the creator is under 18, parent/guardian consent is required before payment.</p>
+    <% } %>
+  </form>
+</div>
+
+<%- include('partials/footer') %>

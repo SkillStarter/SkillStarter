@@ -1,0 +1,16 @@
+<%- include('partials/header') %>
+<h1>Log in</h1>
+<form class="card form" method="POST" action="/login">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>"/>
+  <div class="grid2">
+    <label>Email
+      <input class="input" type="email" name="email" required/>
+    </label>
+    <label>Password
+      <input class="input" type="password" name="password" required/>
+    </label>
+  </div>
+  <button class="btn" type="submit">Log in</button>
+</form>
+
+<%- include('partials/footer') %>
