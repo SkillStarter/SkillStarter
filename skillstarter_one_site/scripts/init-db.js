@@ -117,7 +117,7 @@ if (!hasAdmin) {
   // Create a default admin for first login (you should change it after)
   // Email: admin@skillstarter.local  Password: Admin123!
   // NOTE: This is for local dev only. Change for production.
-  const bcrypt = await import("bcryptjs");
+  const bcrypt = (await import("bcryptjs")).default;
   const { nanoid } = await import("nanoid");
   const now = new Date().toISOString();
   const hash = bcrypt.hashSync("Admin123!", 10);
