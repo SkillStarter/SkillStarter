@@ -117,10 +117,10 @@ if (!hasAdmin) {
   // Create a default admin for first login (you should change it after)
   // Email: admin@skillstarter.local  Password: Admin123!
   // NOTE: This is for local dev only. Change for production.
-  const bcrypt = (await import("bcryptjs")).default;
-  const { nanoid } = await import("nanoid");
-  const now = new Date().toISOString();
-  const hash = bcrypt.hashSync("Admin123!", 10);
+  const { hashSync } = await import("bcryptjs");
+const { nanoid } = await import("nanoid");
+const now = new Date().toISOString();
+const hash = hashSync("Admin123!", 10);
   db.prepare("INSERT INTO users (id,email,password_hash,role,display_name,created_at) VALUES (?,?,?,?,?,?)")
     .run(nanoid(), "admin@skillstarter.local", hash, "admin", "Admin", now);
   console.log("✅ Created default admin (local dev): admin@skillstarter.local / Admin123!");
